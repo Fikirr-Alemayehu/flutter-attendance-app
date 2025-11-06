@@ -81,7 +81,6 @@ class _HomeViewtate extends State<HomeView> {
 
         body: Stack(
           children: [
-            // Inside your build method, right before the ListView.separated:
             Column(
               children: [
                 Container(

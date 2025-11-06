@@ -17,10 +17,9 @@ class ContactViewModel extends ChangeNotifier {
 
   Future<void> _initBox() async {
     _contactBox = Hive.box<Contact>('contact');
-    notifyListeners(); // refresh UI when loaded
+    notifyListeners();
   }
 
-  /// Add a new contact
   Future<void> addContact(String name, String phone) async {
     final newContact = Contact(
       id: Random().nextInt(10000).toString(),
@@ -31,7 +30,6 @@ class ContactViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update an existing contact
   Future<void> updateContact(String id, String name, String phone) async {
     final key = _contactBox.keys.firstWhere(
       (key) => _contactBox.get(key)!.id == id,
@@ -45,7 +43,6 @@ class ContactViewModel extends ChangeNotifier {
     }
   }
 
-  /// Remove contact
   Future<void> removeContact(String id) async {
     final key = _contactBox.keys.firstWhere(
       (key) => _contactBox.get(key)!.id == id,
@@ -58,7 +55,6 @@ class ContactViewModel extends ChangeNotifier {
     }
   }
 
-  /// Launch phone dialer
   Future<void> launchDialer(String phone) async {
     final Uri url = Uri(scheme: 'tel', path: phone);
     if (await canLaunchUrl(url)) {
@@ -69,16 +65,13 @@ class ContactViewModel extends ChangeNotifier {
   }
 
   Contact? getContactById(String id) {
-    // Since Hive iteration methods are generally preferred, we search the values.
     try {
       return _contactBox.values.firstWhere((contact) => contact.id == id);
     } catch (e) {
-      // Return null if no contact is found matching the ID
       return null;
     }
   }
 
-  /// Show dialog for add/edit contact
   void showContactDialog(BuildContext context, {Contact? contact}) {
     final nameController = TextEditingController(text: contact?.name ?? '');
     PhoneNumber number = PhoneNumber(
@@ -137,7 +130,6 @@ class ContactViewModel extends ChangeNotifier {
                         textFieldController: TextEditingController(),
                         inputDecoration: const InputDecoration(
                           isDense: true,
-                          labelText: 'Phone',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 14,

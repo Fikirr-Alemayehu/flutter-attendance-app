@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:glc/attendance/models/contact_model.dart';
 import 'package:glc/attendance/models/student_model.dart';
+import 'package:glc/attendance/viewModel/contact.viewmodel.dart';
 import 'package:glc/attendance/viewModel/home.viewModel.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -19,17 +21,29 @@ class _EditStudentViewState extends State<EditStudentView> {
   PhoneNumber number = PhoneNumber(isoCode: 'ET');
   late TextEditingController addressController;
 
+  String? selectedContactId;
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.student.name);
-    number = PhoneNumber(isoCode: 'ET', phoneNumber: widget.student.phone);
+    String initialPhone = widget.student.phone ?? '';
+    number = PhoneNumber(isoCode: 'ET', phoneNumber: initialPhone);
     addressController = TextEditingController(text: widget.student.address);
+    final currentContactId = widget.student.contactId;
+    selectedContactId = currentContactId != null && currentContactId.isNotEmpty
+        ? currentContactId
+        : null;
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<HomeViewModel>(context, listen: false);
+    final contactVm = Provider.of<ContactViewModel>(context);
+    final contacts = contactVm.contacts;
+    final List<Contact> contactOptions = [
+      Contact(id: '', name: 'No Contact Assigned', phone: ''),
+      ...contacts,
+    ];
 
     return Scaffold(
       backgroundColor: Colors.blueGrey[100],
@@ -40,6 +54,7 @@ class _EditStudentViewState extends State<EditStudentView> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: nameController,
@@ -104,6 +119,39 @@ class _EditStudentViewState extends State<EditStudentView> {
               ),
             ),
             const SizedBox(height: 20),
+            const Text(
+              'Assigned Follower',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              dropdownColor: const Color.fromARGB(255, 188, 211, 223),
+              borderRadius: BorderRadius.circular(25),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+              value: selectedContactId,
+              items: contactOptions.map((Contact contact) {
+                return DropdownMenuItem<String>(
+                  value: contact.id.isEmpty ? null : contact.id,
+                  child: Text(
+                    contact.name.isEmpty
+                        ? 'Not Assigned'
+                        : '${contact.name} (${contact.phone})',
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedContactId = newValue;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
             Container(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 100),
               child: Card(
@@ -117,11 +165,18 @@ class _EditStudentViewState extends State<EditStudentView> {
                     final name = nameController.text.trim();
                     final phone = number.phoneNumber;
                     final address = addressController.text.trim();
+                    final contactId = selectedContactId;
 
                     if (name.isNotEmpty &&
                         address.isNotEmpty &&
                         phone != null) {
-                      vm.editStudent(widget.student.id, name, phone, address);
+                      vm.editStudent(
+                        widget.student.id,
+                        name,
+                        phone,
+                        address,
+                        contactId,
+                      );
                       Navigator.pop(context);
                     }
                   },

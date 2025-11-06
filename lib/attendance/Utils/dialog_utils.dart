@@ -2,16 +2,13 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:bottom_sheet/bottom_sheet.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glc/constants/colors.dart';
 import 'package:glc/constants/dimention.dart';
 import 'package:glc/constants/font_style.dart';
 import 'package:glc/constants/icons.dart';
-import 'package:provider/provider.dart';
 
 class AppDialogUtils {
   static Future<dynamic> showGenDialog({

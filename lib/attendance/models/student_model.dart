@@ -22,7 +22,7 @@ class Student extends HiveObject {
   @HiveField(5)
   final String? courseId;
   @HiveField(6)
-  final String? contactId;
+  String? contactId;
 
   Student({
     required this.id,

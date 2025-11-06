@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
+import 'package:glc/attendance/Utils/dialog_utils.dart';
 import 'package:glc/attendance/models/course_model.dart';
 import 'package:glc/attendance/models/record.dart';
 import 'package:glc/attendance/models/student_model.dart';
@@ -71,8 +72,6 @@ class HomeViewModel extends ChangeNotifier {
     final studentRecords = _attendanceBox.values
         .where((r) => r.studentId == studentId)
         .toList();
-
-    // Group records by Course ID
     final Map<String, List<AttendanceRecord>> history = {};
     for (var record in studentRecords) {
       if (!history.containsKey(record.courseId)) {
@@ -83,7 +82,6 @@ class HomeViewModel extends ChangeNotifier {
     return history;
   }
 
-  // Add a student
   void addStudentWithDetails(
     String name,
     String phone,
@@ -108,7 +106,6 @@ class HomeViewModel extends ChangeNotifier {
     final excel = Excel.createExcel();
     final sheet = excel['Attendance'];
 
-    // Add header row
     sheet.appendRow([
       TextCellValue('Student Name'),
       TextCellValue('Phone'),
@@ -117,7 +114,6 @@ class HomeViewModel extends ChangeNotifier {
       TextCellValue('Status'),
     ]);
 
-    // Add data rows
     for (var record in records) {
       final student = studentBox.get(record.studentId);
       if (student != null) {
@@ -209,7 +205,6 @@ class HomeViewModel extends ChangeNotifier {
       existingRecord.isPresent = !existingRecord.isPresent;
       existingRecord.save();
     } else {
-      // ... create logic using the same recordKey
       attendanceBox.put(
         recordKey,
         AttendanceRecord(
@@ -239,6 +234,7 @@ class HomeViewModel extends ChangeNotifier {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: kcOnPrimary(context),
         title: const Text("Add Course"),
         content: TextField(
           controller: nameController,
@@ -266,8 +262,6 @@ class HomeViewModel extends ChangeNotifier {
 
   void removeStudent(String id) {
     _studentBox.delete(id);
-
-    // Remove attendance records of this student
     final keysToDelete = _attendanceBox.keys
         .where((key) => key.toString().startsWith(id))
         .toList();
@@ -283,24 +277,18 @@ class HomeViewModel extends ChangeNotifier {
     String newName,
     String newPhone,
     String newAddress,
+    String? newContactId,
   ) {
     final student = _studentBox.get(id);
     if (student == null) return;
     student.name = newName;
     student.phone = newPhone;
     student.address = newAddress;
+    student.contactId = newContactId ?? '';
     student.save();
     notifyListeners();
   }
 
-  // Toggle attendance
-  // void toggleAttendance1(String id) {
-  //   final student = _students.firstWhere((student) => student.id == id);
-  //   student.isPresent = !student.isPresent;
-  //   notifyListeners();
-  // }
-
-  // Search students
   void searchStudents(String query) {
     if (query.isEmpty) {
       _filteredStudents = [];
@@ -375,7 +363,6 @@ class HomeViewModel extends ChangeNotifier {
                         textFieldController: TextEditingController(),
                         inputDecoration: const InputDecoration(
                           isDense: true,
-                          labelText: 'Phone',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 14,
@@ -428,146 +415,133 @@ class HomeViewModel extends ChangeNotifier {
     final assignedContact = student.contactId != null
         ? contactVm.getContactById(student.contactId!)
         : null;
-    showModalBottomSheet(
+    AppDialogUtils.showBottomModalSheet(
+      backgroundColor: kcLightGreyish(context).withOpacity(0.55),
+      maxHeight: 0.75,
+      minHeight: 0.35,
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      backgroundColor: Colors.black.withValues(alpha: 0.8),
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  height: 4,
-                  width: 40,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                height: 4,
+                width: 40,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Text(
-                student.name,
-                style: kfBodyMedium(
-                  context,
-                  color: kcWhite,
-                  fontWeight: FontWeight.bold,
-                ),
+            ),
+            Text(
+              student.name,
+              style: kfBodyMedium(
+                context,
+                color: kcWhite,
+                fontWeight: FontWeight.bold,
               ),
-              kdSpaceSmall.height,
-              Row(
-                children: [
-                  Icon(Icons.phone, size: 18, color: kcWhite),
-                  kdSpaceTiny.width,
-                  Text(
-                    student.phone,
-                    style: kfBodyMedium(context, color: kcWhite),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.home, size: 18, color: kcWhite),
-                  const SizedBox(width: 8),
-                  Text(
-                    student.address,
-                    style: kfBodyMedium(context, color: kcWhite),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.check_circle, size: 18, color: kcWhite),
-                  kdSpaceSmall.height,
-                  Text(
-                    isPresentToday ? "Present" : "Absent",
-                    style: kfBodyMedium(
-                      context,
-                      color: isPresentToday ? kcGreen : kcRed,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15), // Separator
-
-              if (assignedContact != null) ...[
+            ),
+            kdSpaceSmall.height,
+            Row(
+              children: [
+                Icon(Icons.phone, size: 18, color: kcWhite),
+                kdSpaceTiny.width,
                 Text(
-                  "Assigned Follower", // New Heading
+                  student.phone,
+                  style: kfBodyMedium(context, color: kcWhite),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.home, size: 18, color: kcWhite),
+                const SizedBox(width: 8),
+                Text(
+                  student.address,
+                  style: kfBodyMedium(context, color: kcWhite),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.check_circle, size: 18, color: kcWhite),
+                kdSpaceSmall.height,
+                Text(
+                  isPresentToday ? "Present" : "Absent",
                   style: kfBodyMedium(
                     context,
-                    color: kcWhite.withOpacity(0.8),
+                    color: isPresentToday ? kcGreen : kcRed,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Icon(Icons.person, size: 18, color: kcWhite),
-                    kdSpaceTiny.width,
-                    Text(
-                      '${assignedContact.name} (${assignedContact.phone})',
-                      style: kfBodyMedium(context, color: kcWhite),
-                    ),
-                  ],
-                ),
               ],
-              const SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 1. Call Student Button (Always available)
+            ),
+            const SizedBox(height: 15),
+
+            if (assignedContact != null) ...[
+              Text(
+                "Assigned Follower",
+                style: kfBodyMedium(
+                  context,
+                  color: kcWhite.withOpacity(0.8),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  Icon(Icons.person, size: 18, color: kcWhite),
+                  kdSpaceTiny.width,
+                  Text(
+                    '${assignedContact.name} (${assignedContact.phone})',
+                    style: kfBodyMedium(context, color: kcWhite),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      callPhone(student.phone);
+                    },
+                    icon: Icon(Icons.phone_android, color: kcBlueAccent),
+                    label: Text(
+                      "Call Student",
+                      style: kfBodySmall(context, color: kcWhite),
+                    ),
+                  ),
+
+                  if (assignedContact != null) const SizedBox(width: 8),
+                  if (assignedContact != null)
                     TextButton.icon(
                       onPressed: () {
                         Navigator.pop(context);
-                        callPhone(student.phone); // Call Student's phone
+                        callPhone(assignedContact.phone);
                       },
-                      icon: Icon(Icons.phone_android, color: kcBlueAccent),
+                      icon: Icon(Icons.contact_phone, color: kcWhiteSmoke),
                       label: Text(
-                        "Call Student",
+                        "Call Assigned",
                         style: kfBodySmall(context, color: kcWhite),
                       ),
                     ),
-
-                    if (assignedContact != null)
-                      // Add a separator space
-                      const SizedBox(width: 8),
-
-                    // 2. Call Assigned Contact Button (Only if contact exists)
-                    if (assignedContact != null)
-                      TextButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          callPhone(
-                            assignedContact.phone,
-                          ); // Call Assigned Contact's phone
-                        },
-                        icon: Icon(
-                          Icons.contact_phone,
-                          color: kcWhiteSmoke,
-                        ), // Use a different icon/color for visual distinction
-                        label: Text(
-                          "Call Assigned",
-                          style: kfBodySmall(context, color: kcWhite),
-                        ),
-                      ),
-                  ],
-                ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -651,5 +625,28 @@ class HomeViewModel extends ChangeNotifier {
     return studentBox.values
         .where((student) => student.courseId == courseId)
         .toList();
+  }
+
+  AttendanceRecord? getSpecificAttendanceRecord(
+    String studentId,
+    DateTime date, {
+    String? courseId,
+  }) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    return _attendanceBox.values.cast<AttendanceRecord?>().firstWhere(
+      (r) =>
+          r?.studentId == studentId &&
+          r?.date.year == normalizedDate.year &&
+          r?.date.month == normalizedDate.month &&
+          r?.date.day == normalizedDate.day &&
+          (courseId == null || r?.courseId == courseId),
+      orElse: () => null,
+    );
+  }
+
+  bool hasHistoricalAttendanceInCourse(String studentId, String courseId) {
+    return attendanceBox.values.any(
+      (r) => r.studentId == studentId && r.courseId == courseId,
+    );
   }
 }

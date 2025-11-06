@@ -22,7 +22,6 @@ class _AddStudentViewState extends State<AddStudentView> {
 
   @override
   Widget build(BuildContext context) {
-    // final homeVm = Provider.of<HomeViewModel>(context, listen: false);
     final contactVm = Provider.of<ContactViewModel>(context);
     final contacts = contactVm.contacts;
     final List<Contact> contactOptions = [
@@ -90,7 +89,6 @@ class _AddStudentViewState extends State<AddStudentView> {
                         textFieldController: TextEditingController(),
                         inputDecoration: const InputDecoration(
                           isDense: true,
-                          labelText: 'Phone',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 14,
@@ -131,8 +129,8 @@ class _AddStudentViewState extends State<AddStudentView> {
               const SizedBox(height: 12),
 
               DropdownButtonFormField<String>(
+                borderRadius: BorderRadius.circular(25),
                 decoration: const InputDecoration(
-                  labelText: 'Emergency Contact',
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
@@ -140,13 +138,12 @@ class _AddStudentViewState extends State<AddStudentView> {
                   ),
                 ),
                 value: _selectedContactId,
-                hint: const Text('Select an emergency contact (Optional)'),
                 items: contactOptions.map((Contact contact) {
                   return DropdownMenuItem<String>(
                     value: contact.id.isEmpty ? null : contact.id,
                     child: Text(
                       contact.name.isEmpty
-                          ? 'No Contact Assigned'
+                          ? 'Not Assigned'
                           : '${contact.name} (${contact.phone})',
                     ),
                   );
