@@ -73,31 +73,6 @@ class AppDialogUtils {
     );
   }
 
-  // static FutureOr<DateTime?> dateTimePicker(
-  //   BuildContext context, {
-  //   CupertinoDatePickerMode mode = CupertinoDatePickerMode.date,
-  //   DateTime? initalDateTime,
-  //   DateTime? maximumDateTime,
-  //   DateTime? minimumDate,
-  // }) async {
-  //   return await showCupertinoModalPopup(
-  //     context: context,
-  //     builder: (_) => Container(
-  //       height: 300,
-  //       color: const Color.fromARGB(255, 255, 255, 255),
-  //       child: CupertinoDateTimePicker(
-  //         minimumDate: minimumDate,
-  //         initialDateTime: initalDateTime ?? DateTime.parse("1990-01-01"),
-  //         maximumDate:
-  //             maximumDateTime ??
-  //             DateTime.now().subtract(const Duration(days: 360 * 10)),
-  //         btnColor: kcPrimary(context),
-  //         mode: mode,
-  //       ),
-  //     ),
-  //   );
-  // }
-
   static Future<dynamic> showBottomModalSheet({
     required Widget child,
     required BuildContext context,
@@ -213,132 +188,6 @@ class AppDialogUtils {
     );
   }
 
-  // static Future<XFile?> fileUploadSheet({
-  //   required BuildContext context,
-  //   String title = "Upload File",
-  //   FileType selectableFileType = FileType.image,
-  // }) async {
-  //   int compressionQuality = context
-  //       .read<AppSettingProvider>()
-  //       .appSetting!
-  //       .appConfig
-  //       .pictureCompressionQuality;
-  //   return await AppDialogUtils.showBottomModalSheet(
-  //     maxHeight: .45,
-  //     initHeight: .43,
-  //     child: FileUploadWidget(
-  //       selectableFileType: selectableFileType,
-  //       onCamera: () async {
-  //         XFile? file = await captureFromCamera(quality: compressionQuality);
-  //         Navigator.of(context).pop(file);
-  //       },
-  //       onGallery: () async {
-  //         bool hasPermission = await _photoPickerPermission();
-
-  //         if (hasPermission) {
-  //           XFile? file = await getFile(
-  //             selectableFileType,
-  //             quality: compressionQuality,
-  //           );
-  //           Navigator.of(context).pop(file);
-  //         } else {
-  //           Fluttertoast.showToast(msg: "denied_permission".tr());
-  //           if (await Permission.storage.status.isPermanentlyDenied ||
-  //               await Permission.photos.status.isPermanentlyDenied) {
-  //             openAppSettings();
-  //           }
-  //         }
-  //       },
-  //     ),
-  //     titleText: title,
-  //     context: context,
-  //   );
-  // }
-
-  // static Future<bool> _photoPickerPermission() async {
-  //   try {
-  //     bool hasPermission = false;
-  //     if (Platform.isAndroid) {
-  //       final deviceInfoPlugin = DeviceInfoPlugin();
-  //       final androidInfo = await deviceInfoPlugin.androidInfo;
-  //       final int sdkInt = androidInfo.version.sdkInt;
-  //       // API <=33+
-  //       if (sdkInt > 32) {
-  //         PermissionStatus status = await Permission.photos.status;
-  //         if (status.isDenied) {
-  //           status = await Permission.photos.request();
-  //         }
-  //         hasPermission = status == PermissionStatus.granted;
-  //       } else {
-  //         // API <=32
-  //         PermissionStatus status = await Permission.storage.status;
-  //         if (status.isDenied) {
-  //           status = await Permission.storage.request();
-  //         }
-  //         hasPermission = status == PermissionStatus.granted;
-  //       }
-  //     } else {
-  //       // iOS or other: Fallback to photos
-  //       PermissionStatus status = await Permission.photos.status;
-  //       if (status.isDenied) {
-  //         status = await Permission.photos.request();
-  //       }
-  //       hasPermission = status == PermissionStatus.granted;
-  //     }
-  //     return hasPermission;
-  //   } catch (e) {
-  //     //
-  //     return false;
-  //   }
-  // }
-
-  // static Future<XFile?>? captureFromCamera({int quality = 25}) async {
-  //   final ImagePicker picker = ImagePicker();
-  //   final XFile? photo = await picker.pickImage(
-  //     source: ImageSource.camera,
-  //     imageQuality: quality,
-  //   );
-  //   if (photo != null) {
-  //     return photo;
-  //   }
-  //   return null;
-  // }
-
-  // static Future<XFile?>? getFile(FileType fileType, {int quality = 25}) async {
-  //   final ImagePicker picker = ImagePicker();
-  //   if (fileType == FileType.image) {
-  //     final XFile? photo = await picker.pickImage(
-  //       source: ImageSource.gallery,
-  //       imageQuality: quality,
-  //     );
-  //     if (photo != null) {
-  //       return photo;
-  //     }
-  //   } else {
-  //     FilePickerResult? result = await FilePicker.platform.pickFiles(
-  //       allowMultiple: false,
-  //       type: fileType,
-  //     );
-  //     if (result != null) {
-  //       XFile selectedFile = XFile(result.paths.first!);
-
-  //       String ext = XFile(
-  //         result.paths.first!,
-  //       ).name.split(".").last.toLowerCase();
-  //       if (["jpg", "jpeg", "gif", "png"].contains(ext)) {
-  //         var compressedBytes = (await FlutterImageCompress.compressWithFile(
-  //           selectedFile.path,
-  //           quality: quality,
-  //         ))!;
-  //         File compressedFile = File(selectedFile.path);
-  //         await compressedFile.writeAsBytes(compressedBytes);
-  //       }
-  //       return selectedFile;
-  //     }
-  //   }
-  //   return null;
-  // }
-
   static Future<dynamic> dialogWithTextField({
     required BuildContext context,
     String initalText = "",
@@ -439,30 +288,6 @@ class AppDialogUtils {
     );
   }
 
-  // static Future<void> pictureDetailDialog(
-  //   BuildContext context, {
-  //   String? url,
-  //   Uint8List? bytes,
-  //   Function? otherBottomModal,
-  //   bool? showExplictThenAction,
-  //   String? title,
-  //   String? caption,
-  // }) async {
-  //   await showFlexibleBottomSheet(
-  //     initHeight: 1,
-  //     bottomSheetColor: Colors.black.withValues(alpha: 0.65),
-  //     context: context,
-  //     builder: (ctx, s, ss) => PictureDetailViewWidget(
-  //       showExplictThenAction: showExplictThenAction ?? false,
-  //       url: url,
-  //       bytes: bytes,
-  //       then: otherBottomModal,
-  //       title: title,
-  //       caption: caption,
-  //     ),
-  //   );
-  // }
-
   static Future<dynamic> bottomModalHandlerWithNoScroll({
     required Widget child,
     required BuildContext context,
@@ -503,55 +328,6 @@ class AppDialogUtils {
           },
     );
   }
-
-  // static Future<bool> showTermsAndConditionDialog(
-  //   BuildContext context, {
-  //   String title = "Terms and condition",
-  //   required String description,
-  // }) async {
-  //   bool? status = await AppDialogUtils.showBottomModalSheet(
-  //     context: context,
-  //     titleText: title,
-  //     minHeight: .65,
-  //     initHeight: .825,
-  //     child: TermsAndCondition(description: description),
-  //   );
-
-  //   return status ?? false;
-  // }
-
-  // static Future<void> changeLocale(
-  //   BuildContext context, {
-  //   required String title,
-  // }) async {
-  //   final localizationService = locator<LocalizationService>();
-  //   final localeRes = localStorage?.getString("lang_locale") ?? 'en';
-  //   await AppDialogUtils.showGenDialog(
-  //     title: title,
-  //     content: "",
-  //     context: context,
-  //     okayText: "app_text_cancel".tr(),
-  //     onOkay: () {},
-  //     contentWidget: Column(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: buildLanguageOptions(
-  //         context,
-  //         localizationService.supportedLangs,
-  //         localeRes,
-  //         (selectedCode) async {
-  //           localStorage?.setString("lang_locale", selectedCode);
-  //           await localizationService.load(Locale(selectedCode));
-  //           Navigator.of(context).pop();
-  //         },
-  //       ),
-  //     ),
-  //   );
-
-  //   context.read<AppSettingProvider>().homeTabTitle = "tab_home".tr();
-  //   context.read<AppSettingProvider>().historyTabTitle = "tab_history".tr();
-  //   context.read<AppSettingProvider>().chatTabTitle = "tab_chat".tr();
-  //   context.read<AppSettingProvider>().profileTabTitle = "tab_profile".tr();
-  // }
 
   static List<Widget> buildLanguageOptions(
     BuildContext context,

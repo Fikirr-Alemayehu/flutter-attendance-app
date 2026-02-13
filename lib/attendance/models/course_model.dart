@@ -1,27 +1,19 @@
-import 'package:hive/hive.dart';
-part 'course_model.g.dart';
-
-@HiveType(typeId: 3)
-class Course extends HiveObject {
-  @HiveField(0)
-  String id;
-
-  @HiveField(1)
-  String name;
-
-  @HiveField(2)
-  String? instructor;
+class Course {
+  final String id;
+  final String name;
+  final String? instructor;
 
   Course({required this.id, required this.name, this.instructor});
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Course && runtimeType == other.runtimeType && id == other.id;
+  factory Course.fromMap(String id, Map<String, dynamic> data) {
+    return Course(
+      id: id,
+      name: data['name'] ?? '',
+      instructor: data['instructor'],
+    );
+  }
 
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  String toString() => name;
+  Map<String, dynamic> toMap() {
+    return {'name': name, 'instructor': instructor};
+  }
 }

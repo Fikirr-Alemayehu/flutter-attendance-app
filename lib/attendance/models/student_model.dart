@@ -1,36 +1,35 @@
-import 'package:hive/hive.dart';
-
-part 'student_model.g.dart';
-
-@HiveType(typeId: 0)
-class Student extends HiveObject {
-  @HiveField(0)
+class Student {
   final String id;
-
-  @HiveField(1)
-  String name;
-
-  @HiveField(2)
-  String phone;
-
-  @HiveField(3)
-  String address;
-
-  @HiveField(4)
-  bool isPresent;
-
-  @HiveField(5)
-  final String? courseId;
-  @HiveField(6)
-  String? contactId;
+  final String name;
+  final String phone;
+  final String address;
+  final String? contactId;
 
   Student({
     required this.id,
     required this.name,
-    this.courseId = '',
-    this.contactId = '',
-    this.phone = '',
-    this.address = '',
-    this.isPresent = false,
+    required this.phone,
+    required this.address,
+    this.contactId,
   });
+
+  factory Student.fromMap(String id, Map<String, dynamic> data) {
+    return Student(
+      id: id,
+      name: data['name'] ?? '',
+      phone: data['phone'] ?? '',
+      address: data['address'] ?? '',
+      contactId: data['contactId'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'phone': phone,
+      'address': address,
+      'contactId': contactId,
+      'updatedAt': DateTime.now(),
+    };
+  }
 }

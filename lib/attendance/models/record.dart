@@ -1,20 +1,10 @@
-import 'package:hive/hive.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-part 'record.g.dart';
-
-@HiveType(typeId: 1)
-class AttendanceRecord extends HiveObject {
-  @HiveField(0)
+class AttendanceRecord {
   final String studentId;
-
-  @HiveField(1)
   final String courseId;
-
-  @HiveField(2)
   final DateTime date;
-
-  @HiveField(3)
-  bool isPresent;
+  final bool isPresent;
 
   AttendanceRecord({
     required this.studentId,
@@ -22,4 +12,25 @@ class AttendanceRecord extends HiveObject {
     required this.date,
     required this.isPresent,
   });
+
+  factory AttendanceRecord.fromMap(Map<String, dynamic> data) {
+    return AttendanceRecord(
+      studentId: data['studentId'] ?? '',
+      courseId: data['courseId'] ?? '',
+      date: data['date'] != null
+          ? (data['date'] as Timestamp).toDate()
+          : DateTime.now(),
+      isPresent: data['isPresent'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'studentId': studentId,
+      'courseId': courseId,
+      'date': Timestamp.fromDate(date),
+      'isPresent': isPresent,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
 }
