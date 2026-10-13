@@ -353,7 +353,7 @@ class AppDialogUtils {
               color: kcSmoke(context),
               borderRadius: BorderRadius.circular(12),
               border: selectedLangCode == code
-                  ? Border.all(color: kcPrimary(context), width: 1)
+                  ? Border.all(color: kcPrimaryDynamic(context), width: 1)
                   : null,
             ),
             child: Row(

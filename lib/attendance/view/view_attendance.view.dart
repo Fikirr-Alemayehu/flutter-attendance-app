@@ -5,6 +5,7 @@ import 'package:glc/attendance/models/student_model.dart';
 import 'package:glc/attendance/viewModel/home.viewModel.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:glc/constants/colors.dart';
 
 class AttendanceHistoryView extends StatefulWidget {
   const AttendanceHistoryView({super.key});
@@ -34,10 +35,12 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
     final vm = Provider.of<HomeViewModel>(context);
 
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
+      backgroundColor: kcAppBg,
       appBar: AppBar(
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: kcPrimary,
         elevation: 0,
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: _isSearching
             ? TextField(
                 controller: _searchController,
@@ -78,12 +81,12 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
             child: Row(
               children: [
                 // 1. Date
                 Expanded(
-                  child: _buildCompactFilter(
+                  child: _buildFilterChip(
                     icon: LucideIcons.calendar,
                     text:
                         "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
@@ -98,11 +101,11 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                     },
                   ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
 
                 // 2. Course
                 Expanded(
-                  child: _buildCompactFilter(
+                  child: _buildFilterChip(
                     icon: Icons.book,
                     text: selectedCourseId != null
                         ? vm.courses
@@ -116,15 +119,20 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                       // Simplified selector for compact view
                       final picked = await showModalBottomSheet<String>(
                         context: context,
+                        backgroundColor: kcSurface,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
                         builder: (_) => Container(
-                          color: Colors.white,
+                          color: kcSurface,
                           child: ListView(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(16),
                             children: [
                               ListTile(
-                                title: const Text("select Course"),
+                                title: const Text("All Courses", style: TextStyle(fontWeight: FontWeight.bold)),
                                 onTap: () => Navigator.pop(context, null),
                               ),
+                              const Divider(),
                               ...vm.courses.map(
                                 (c) => ListTile(
                                   title: Text(c.name),
@@ -135,21 +143,22 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                           ),
                         ),
                       );
-                      if (picked != null)
+                      if (picked != null) {
                         setState(() => selectedCourseId = picked);
+                      }
                     },
                   ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
 
                 Expanded(
                   child: Container(
-                    height: 36, // Compact height
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade300),
+                      color: kcSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: kcOutlineVariant, width: 1),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -157,30 +166,31 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                         isExpanded: true,
                         icon: const Icon(
                           Icons.arrow_drop_down,
-                          size: 20,
-                          color: Colors.grey,
+                          size: 24,
+                          color: kcOutline,
                         ),
                         style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
+                          fontSize: 13,
+                          color: kcFontBold,
+                          fontWeight: FontWeight.w500,
                         ),
                         items: const [
                           DropdownMenuItem(
                             value: 'All',
-                            child: Text("All", style: TextStyle(fontSize: 12)),
+                            child: Text("All", style: TextStyle(fontSize: 13)),
                           ),
                           DropdownMenuItem(
                             value: 'Present',
                             child: Text(
                               "Present",
-                              style: TextStyle(fontSize: 12),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem(
                             value: 'Absent',
                             child: Text(
                               "Absent",
-                              style: TextStyle(fontSize: 12),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -243,45 +253,46 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 12),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 20,
+                      vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      color: kcSurface,
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 2,
+                          color: Colors.black.withValues(alpha:0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildCompactStat(
+                        _buildStatCard(
                           Icons.people_outline,
                           "Total",
                           "$total",
-                          Colors.blueGrey,
+                          kcPrimary,
                         ),
-                        _buildCompactStat(
+                        _buildStatCard(
                           Icons.check_circle_outline,
                           "Present",
                           "$present",
-                          Colors.green,
+                          kcGreen,
                         ),
-                        _buildCompactStat(
+                        _buildStatCard(
                           Icons.cancel_outlined,
                           "Absent",
                           "$absent",
-                          Colors.red,
+                          kcRed,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Download Buttons (Compact)
+                  const SizedBox(height: 12),
+                  // Download Buttons
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Row(
@@ -289,18 +300,18 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                         Expanded(
                           child: _buildDownloadButton(
                             icon: Icons.picture_as_pdf,
-                            label: "PDF",
-                            color: Colors.redAccent,
+                            label: "Export PDF",
+                            color: kcRed,
                             onTap: () =>
                                 vm.exportAttendancePDF(filteredRecords),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: _buildDownloadButton(
                             icon: Icons.table_view,
-                            label: "Excel",
-                            color: Colors.green,
+                            label: "Export Excel",
+                            color: kcGreen,
                             onTap: () =>
                                 vm.exportAttendanceExcel(filteredRecords),
                           ),
@@ -366,10 +377,17 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                 }).toList();
 
                 if (filteredRecords.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "No records found",
-                      style: TextStyle(color: Colors.grey),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.folder_open, size: 64, color: kcOutline),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "No records found",
+                          style: TextStyle(color: kcFont, fontSize: 16),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -400,67 +418,104 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                     );
 
                     return Card(
-                      elevation: 1,
-                      margin: const EdgeInsets.only(bottom: 8),
+                      elevation: 0,
+                      margin: const EdgeInsets.only(bottom: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(
+                          color: record.isPresent ? kcGreen.withValues(alpha:0.3) : kcOutlineVariant,
+                          width: 1,
+                        ),
                       ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        leading: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.blueGrey.shade100,
-                          child: Text(
-                            student.name.isNotEmpty ? student.name[0] : "?",
-                            style: const TextStyle(color: Colors.blueGrey),
-                          ),
-                        ),
-                        title: Text(
-                          student.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        subtitle: Text(
-                          course.name,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: record.isPresent
-                                ? Colors.green.shade50
-                                : Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: record.isPresent
-                                  ? Colors.green
-                                  : Colors.red,
-                              width: 0.5,
-                            ),
-                          ),
-                          child: Text(
-                            record.isPresent ? "Present" : "Absent",
-                            style: TextStyle(
-                              color: record.isPresent
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
+                      color: record.isPresent
+                          ? kcGreen.withValues(alpha:0.05)
+                          : kcSurface,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
                         onTap: () => _showStudentHistory(context, vm, student),
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: record.isPresent
+                                        ? [kcGreen, kcGreen.withValues(alpha:0.8)]
+                                        : [kcPrimary.withValues(alpha: 0.5), kcPrimary.withValues(alpha: 0.3)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    student.name.isNotEmpty ? student.name[0] : "?",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      student.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                        color: kcFontBold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      course.name,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: kcFont,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: record.isPresent
+                                      ? kcGreen.withValues(alpha:0.1)
+                                      : kcRed.withValues(alpha:0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: record.isPresent
+                                        ? kcGreen
+                                        : kcRed,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  record.isPresent ? "Present" : "Absent",
+                                  style: TextStyle(
+                                    color: record.isPresent
+                                        ? kcGreen
+                                        : kcRed,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -474,33 +529,34 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
   }
 
   // Helper for compact top filters
-  Widget _buildCompactFilter({
+  Widget _buildFilterChip({
     required IconData icon,
     required String text,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
+          color: kcSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: kcOutlineVariant, width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: Colors.blueGrey),
-            const SizedBox(width: 6),
+            Icon(icon, size: 18, color: kcPrimary),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 text,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: kcFontBold,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -511,7 +567,7 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
     );
   }
 
-  Widget _buildCompactStat(
+  Widget _buildStatCard(
     IconData icon,
     String label,
     String value,
@@ -519,17 +575,24 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
   ) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(height: 2),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha:0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(height: 6),
         Text(
           value,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: color,
           ),
         ),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(label, style: const TextStyle(fontSize: 11, color: kcFont)),
       ],
     );
   }
@@ -542,26 +605,26 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: 36,
+        height: 44,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color),
+          color: color.withValues(alpha:0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color, width: 1),
         ),
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 16),
-              const SizedBox(width: 6),
+              Icon(icon, color: color, size: 18),
+              const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
                   color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
             ],
@@ -587,11 +650,11 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
       builder: (_) {
         return Container(
           height: MediaQuery.of(context).size.height * 0.6,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: kcSurface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -602,7 +665,7 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: kcOutlineVariant,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -610,29 +673,45 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
               // Title
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.blueGrey[100],
-                    child: Text(
-                      student.name.isNotEmpty
-                          ? student.name[0].toUpperCase()
-                          : "?",
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [kcPrimary, kcPrimaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.transparent,
+                      child: Text(
+                        student.name.isNotEmpty
+                            ? student.name[0].toUpperCase()
+                            : "?",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "History for",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          style: TextStyle(fontSize: 12, color: kcFont),
                         ),
                         Text(
                           student.name,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: kcFontBold,
                           ),
                         ),
                       ],
@@ -643,7 +722,16 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
               const Divider(height: 30),
 
               if (history.isEmpty)
-                const Center(child: Text("No records found."))
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history, size: 48, color: kcOutline),
+                      const SizedBox(height: 12),
+                      const Text("No records found.", style: TextStyle(color: kcFont)),
+                    ],
+                  ),
+                )
               else
                 Expanded(
                   child: ListView(
@@ -667,10 +755,13 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
 
                       return Card(
                         elevation: 0,
-                        color: Colors.blueGrey[50],
+                        color: kcSurfaceContainer,
                         margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -682,36 +773,47 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
                                     courseName,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: kcFontBold,
                                     ),
                                   ),
-                                  Text(
-                                    "$presentCount/$totalClasses",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: kcPrimary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      "$presentCount/$totalClasses",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: kcPrimary,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(8),
                                 child: LinearProgressIndicator(
                                   value: presentCount / totalClasses,
-                                  minHeight: 6,
-                                  backgroundColor: Colors.white,
+                                  minHeight: 8,
+                                  backgroundColor: kcOutlineVariant,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     percentage > 50
-                                        ? Colors.green
-                                        : Colors.orange,
+                                        ? kcGreen
+                                        : kcOrange,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 8),
                               Text(
                                 "$percentage% Attendance",
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
+                                  fontSize: 13,
+                                  color: kcFont,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],

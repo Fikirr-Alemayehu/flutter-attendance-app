@@ -10,6 +10,7 @@ import 'package:glc/attendance/view/view_attendance.view.dart';
 import 'package:glc/attendance/viewModel/contact.viewmodel.dart';
 import 'package:glc/attendance/viewModel/home.viewModel.dart';
 import 'package:provider/provider.dart';
+import 'package:glc/constants/colors.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -39,11 +40,12 @@ class _HomeViewState extends State<HomeView> {
 
     return SafeArea(
       child: Scaffold(
+        backgroundColor: kcAppBg,
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: Colors.blueGrey,
-
-          // toolbarHeight: 80,
+          backgroundColor: kcPrimary,
+          foregroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.white),
           title: _isSearching
               ? TextField(
                   autofocus: true,
@@ -126,7 +128,7 @@ class _HomeViewState extends State<HomeView> {
                     final isSelected = course.id == vm.selectedCourseId;
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      child: ChoiceChip(
+                      child: FilterChip(
                         label: Text(course.name ?? 'Unknown Course'),
                         selected: isSelected,
                         onSelected: (_) {
@@ -136,24 +138,20 @@ class _HomeViewState extends State<HomeView> {
                             vm.setSelectedCourse(course.id);
                           }
                         },
-                        selectedColor: Colors.white,
-                        backgroundColor: Colors.blueGrey[100],
+                        selectedColor: kcPrimary,
+                        backgroundColor: kcSurface,
+                        checkmarkColor: Colors.white,
                         labelStyle: TextStyle(
-                          color: isSelected
-                              ? Colors.blueGrey[900]
-                              : Colors.blueGrey,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                          color: isSelected ? Colors.white : kcFont,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isSelected
-                                ? Colors.blueGrey
-                                : Colors.transparent,
+                            color: isSelected ? kcPrimary : kcOutlineVariant,
                           ),
                         ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       ),
                     );
                   },
@@ -163,17 +161,28 @@ class _HomeViewState extends State<HomeView> {
             Expanded(
               child: filteredStudents.isEmpty
                   ? Center(
-                      child: Text(
-                        _searchQuery.isEmpty
-                            ? "No students added yet."
-                            : "No students found.",
-                        style: TextStyle(color: Colors.grey[500]),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: kcOutline,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchQuery.isEmpty
+                                ? "No students added yet."
+                                : "No students found.",
+                            style: TextStyle(color: kcFont, fontSize: 16),
+                          ),
+                        ],
                       ),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 5,
+                        vertical: 8,
                       ),
                       itemCount: filteredStudents.length,
                       itemBuilder: (context, index) {
@@ -186,69 +195,20 @@ class _HomeViewState extends State<HomeView> {
                             final isPresent = record?.isPresent ?? false;
 
                             return Card(
-                              elevation: 2,
+                              elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: isPresent ? kcGreen.withValues(alpha:0.3) : kcOutlineVariant,
+                                  width: 1,
+                                ),
                               ),
                               margin: const EdgeInsets.only(bottom: 12),
                               color: isPresent
-                                  ? Colors.green.shade50
-                                  : Colors.white,
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 5,
-                                ),
-                                leading: CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: isPresent
-                                      ? Colors.green
-                                      : Colors.blueGrey,
-                                  child: Text(
-                                    (student.name ?? '?').isNotEmpty
-                                        ? (student.name ?? '?')[0].toUpperCase()
-                                        : "?",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                title: Text(
-                                  student.name ?? 'Unknown Student',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                trailing: Switch(
-                                  value: isPresent,
-                                  activeThumbColor: Colors.green,
-                                  onChanged: (value) {
-                                    if (vm.selectedCourseId == null) {
-                                      DelightToastBar(
-                                        autoDismiss: true,
-                                        builder: (context) => const ToastCard(
-                                          leading: Icon(
-                                            Icons.flutter_dash,
-                                            size: 28,
-                                          ),
-                                          title: Text(
-                                            "Please select a course first!",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ).show(context);
-
-                                      return;
-                                    }
-
-                                    vm.toggleAttendance(student.id);
-                                  },
-                                ),
+                                  ? kcGreen.withValues(alpha:0.08)
+                                  : kcSurface,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
                                 onTap: () => _showStudentDetails(
                                   context,
                                   student,
@@ -256,6 +216,99 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                                 onLongPress: () =>
                                     _showEditDeleteDialog(context, vm, student),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: isPresent
+                                                ? [kcGreen, kcGreen.withValues(alpha:0.8)]
+                                                : [kcPrimary, kcPrimaryLight],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: (isPresent ? kcGreen : kcPrimary).withValues(alpha:0.2),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            (student.name ?? '?').isNotEmpty
+                                                ? (student.name ?? '?')[0].toUpperCase()
+                                                : "?",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              student.name ?? 'Unknown Student',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                                color: kcFontBold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              student.phone ?? 'No phone',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: kcFont,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Switch(
+                                        value: isPresent,
+                                        activeTrackColor: kcGreen,
+                                        onChanged: (value) {
+                                          if (vm.selectedCourseId == null) {
+                                            DelightToastBar(
+                                              autoDismiss: true,
+                                              builder: (context) => const ToastCard(
+                                                leading: Icon(
+                                                  Icons.warning_rounded,
+                                                  size: 28,
+                                                  color: Colors.orange,
+                                                ),
+                                                title: Text(
+                                                  "Please select a course first!",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ).show(context);
+
+                                            return;
+                                          }
+
+                                          vm.toggleAttendance(student.id);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -274,7 +327,7 @@ class _HomeViewState extends State<HomeView> {
               _buildFabItem(
                 icon: Icons.history,
                 label: "Report",
-                color: Colors.orange,
+                color: kcOrange,
                 onTap: () {
                   setState(() => _isFabMenuOpen = false);
                   Navigator.push(
@@ -289,7 +342,7 @@ class _HomeViewState extends State<HomeView> {
               _buildFabItem(
                 icon: Icons.group,
                 label: "Follow Up",
-                color: Colors.blue,
+                color: kcSecondary,
                 onTap: () {
                   setState(() => _isFabMenuOpen = false);
                   Navigator.push(
@@ -302,25 +355,35 @@ class _HomeViewState extends State<HomeView> {
               _buildFabItem(
                 icon: Icons.person_add,
                 label: "Add Student",
-                color: Colors.green,
+                color: kcGreen,
                 onTap: () {
                   setState(() => _isFabMenuOpen = false);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AddStudentView()),
+                    MaterialPageRoute(
+                      builder: (context) => const AddStudentView(),
+                    ),
                   );
                 },
               ),
               const SizedBox(height: 15),
             ],
-            FloatingActionButton(
+            FloatingActionButton.extended(
               onPressed: () {
                 setState(() => _isFabMenuOpen = !_isFabMenuOpen);
               },
-              backgroundColor: Colors.blueGrey,
-              child: Icon(
-                _isFabMenuOpen ? Icons.close : Icons.menu,
+              backgroundColor: kcPrimary,
+              elevation: 4,
+              icon: Icon(
+                _isFabMenuOpen ? Icons.close : Icons.add,
                 color: Colors.white,
+              ),
+              label: Text(
+                _isFabMenuOpen ? "Close" : "Actions",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -343,17 +406,18 @@ class _HomeViewState extends State<HomeView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
+              color: kcSurface,
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4),
+                BoxShadow(color: Colors.black.withValues(alpha:0.1), blurRadius: 8),
               ],
             ),
             child: Text(
               label,
               style: TextStyle(
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500,
+                color: kcFontBold,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ),
@@ -363,6 +427,7 @@ class _HomeViewState extends State<HomeView> {
             mini: true,
             onPressed: onTap,
             backgroundColor: color,
+            elevation: 3,
             child: Icon(icon, size: 20, color: Colors.white),
           ),
         ],
@@ -378,6 +443,7 @@ class _HomeViewState extends State<HomeView> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (_) {
         return Consumer<ContactViewModel>(
           builder: (context, contactVm, child) {
@@ -386,11 +452,11 @@ class _HomeViewState extends State<HomeView> {
                 : null;
 
             return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              decoration: BoxDecoration(
+                color: kcSurface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               ),
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -399,53 +465,86 @@ class _HomeViewState extends State<HomeView> {
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: kcOutlineVariant,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.blueGrey[100],
-                    child: Text(
-                      (student.name ?? '?').isNotEmpty
-                          ? (student.name ?? '?')[0].toUpperCase()
-                          : "?",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isPresent
+                            ? [kcGreen, kcGreen.withValues(alpha:0.8)]
+                            : [kcPrimary, kcPrimaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isPresent ? kcGreen : kcPrimary).withValues(alpha:0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.transparent,
+                      child: Text(
+                        (student.name ?? '?').isNotEmpty
+                            ? (student.name ?? '?')[0].toUpperCase()
+                            : "?",
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 16),
                   Text(
                     student.name ?? 'Unknown Student',
                     style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: kcFontBold,
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    isPresent ? "Present" : "Absent",
-                    style: TextStyle(
-                      color: isPresent ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isPresent ? kcGreen.withValues(alpha:0.1) : kcRed.withValues(alpha:0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isPresent ? kcGreen : kcRed,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      isPresent ? "Present" : "Absent",
+                      style: TextStyle(
+                        color: isPresent ? kcGreen : kcRed,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
-                  const Divider(height: 30),
+                  const SizedBox(height: 24),
                   _buildDetailRow(Icons.phone, student.phone ?? 'No Phone', () {
                     if (student.phone.isNotEmpty) {
                       contactVm.launchDialer(student.phone);
                     }
                   }),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   _buildDetailRow(
                     Icons.home,
                     student.address ?? 'No Address',
                     null,
                   ),
                   if (follower != null) ...[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     _buildDetailRow(
                       Icons.person,
                       "Follower: ${follower.name}",
@@ -454,6 +553,7 @@ class _HomeViewState extends State<HomeView> {
                       },
                     ),
                   ],
+                  const SizedBox(height: 16),
                 ],
               ),
             );
@@ -466,16 +566,34 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildDetailRow(IconData icon, String text, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: kcSurfaceContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.blueGrey),
-            const SizedBox(width: 15),
-            Expanded(child: Text(text, style: const TextStyle(fontSize: 16))),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: kcPrimary.withValues(alpha:0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: kcPrimary, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(text, style: const TextStyle(fontSize: 15, color: kcFontBold))),
             if (onTap != null)
-              const Icon(Icons.call, color: Colors.green, size: 20),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: kcGreen.withValues(alpha:0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.call, color: kcGreen, size: 20),
+              ),
           ],
         ),
       ),
@@ -531,7 +649,26 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       );
-      if (confirm == true) vm.deleteStudent(student.id);
+      if (confirm == true) {
+        vm.deleteStudent(student.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.delete_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Text("${student.name ?? 'Student'} deleted"),
+              ],
+            ),
+            backgroundColor: kcRed,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -545,34 +682,94 @@ class _HomeViewState extends State<HomeView> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text(course == null ? 'Add Course' : 'Edit Course'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          course == null ? 'Add Course' : 'Edit Course',
+          style: const TextStyle(fontWeight: FontWeight.bold, color: kcFontBold),
+        ),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
             labelText: 'Course Name',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            filled: true,
+            fillColor: kcSurfaceContainer,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: kcOutlineVariant, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: kcPrimary, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: kcFont)),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
               final name = controller.text.trim();
               if (name.isNotEmpty) {
                 if (course == null) {
                   await vm.addCourse(name);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.white),
+                            const SizedBox(width: 12),
+                            const Text("Course added successfully!"),
+                          ],
+                        ),
+                        backgroundColor: kcGreen,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
                 } else {
                   await vm.updateCourse(course.id, name);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.white),
+                            const SizedBox(width: 12),
+                            const Text("Course updated successfully!"),
+                          ],
+                        ),
+                        backgroundColor: kcGreen,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
                 }
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Save', style: TextStyle(color: Colors.blueGrey)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kcPrimary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -583,12 +780,12 @@ class _HomeViewState extends State<HomeView> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: kcSurface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (_) => Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         height: MediaQuery.of(context).size.height * 0.6,
         child: Column(
           children: [
@@ -597,11 +794,12 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 const Text(
                   "Manage Courses",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kcFontBold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
+                  color: kcFont,
                 ),
               ],
             ),
@@ -610,7 +808,16 @@ class _HomeViewState extends State<HomeView> {
               child: Consumer<HomeViewModel>(
                 builder: (context, vm, child) {
                   return vm.courses.isEmpty
-                      ? const Center(child: Text("No courses found."))
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.book_outlined, size: 48, color: kcOutline),
+                              const SizedBox(height: 12),
+                              const Text("No courses found.", style: TextStyle(color: kcFont)),
+                            ],
+                          ),
+                        )
                       : ListView.builder(
                           itemCount: vm.courses.length,
                           itemBuilder: (context, index) {
@@ -618,27 +825,30 @@ class _HomeViewState extends State<HomeView> {
                             final isSelected = course.id == vm.selectedCourseId;
 
                             return Card(
-                              elevation: 1,
-                              color: isSelected
-                                  ? Colors.blueGrey[50]
-                                  : Colors.white,
+                              elevation: 0,
+                              color: isSelected ? kcPrimary.withValues(alpha:0.08) : kcSurface,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: isSelected ? kcPrimary : kcOutlineVariant,
+                                  width: 1,
+                                ),
+                              ),
+                              margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                 title: Text(
                                   course.name ?? 'Unknown Course',
                                   style: TextStyle(
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color: isSelected
-                                        ? Colors.blueGrey
-                                        : Colors.black,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                    color: isSelected ? kcPrimary : kcFontBold,
                                   ),
                                 ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.edit, size: 20),
+                                      icon: const Icon(Icons.edit_outlined, size: 20),
                                       onPressed: () {
                                         _showCourseDialog(
                                           context,
@@ -646,17 +856,19 @@ class _HomeViewState extends State<HomeView> {
                                           course: course,
                                         );
                                       },
+                                      color: kcPrimary,
                                     ),
                                     IconButton(
                                       icon: const Icon(
-                                        Icons.delete,
+                                        Icons.delete_outline,
                                         size: 20,
-                                        color: Colors.red,
+                                        color: kcRed,
                                       ),
                                       onPressed: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (_) => AlertDialog(
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                             title: const Text("Delete Course"),
                                             content: Text(
                                               "Delete ${course.name ?? 'this course'}?",
@@ -677,7 +889,7 @@ class _HomeViewState extends State<HomeView> {
                                                 child: const Text(
                                                   "Delete",
                                                   style: TextStyle(
-                                                    color: Colors.red,
+                                                    color: kcRed,
                                                   ),
                                                 ),
                                               ),
@@ -687,8 +899,26 @@ class _HomeViewState extends State<HomeView> {
 
                                         if (confirm == true) {
                                           await vm.deleteCourse(course.id);
-                                          if (context.mounted)
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Row(
+                                                  children: [
+                                                    const Icon(Icons.delete_outline, color: Colors.white),
+                                                    const SizedBox(width: 12),
+                                                    Text("${course.name ?? 'Course'} deleted"),
+                                                  ],
+                                                ),
+                                                backgroundColor: kcRed,
+                                                behavior: SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                duration: const Duration(seconds: 2),
+                                              ),
+                                            );
                                             Navigator.pop(context);
+                                          }
                                         }
                                       },
                                     ),
@@ -705,21 +935,23 @@ class _HomeViewState extends State<HomeView> {
                 },
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  backgroundColor: kcPrimary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  elevation: 2,
                 ),
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text(
                   "Add New Course",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 onPressed: () {
                   _showCourseDialog(context, vm);

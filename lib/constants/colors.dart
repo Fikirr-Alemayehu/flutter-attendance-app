@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
+// Material 3 Blue/Indigo Color Scheme
+const kcPrimary = Color(0xFF3F51B5); // Indigo 600
+const kcPrimaryLight = Color(0xFF6E73FF); // Indigo 400
+const kcPrimaryDark = Color(0xFF002984); // Indigo 900
+const kcSecondary = Color(0xFF4FC3F7); // Light Blue 300
+const kcTertiary = Color(0xFF82B1FF); // Blue A200
+
 const kcGreen = Color.fromARGB(255, 38, 188, 135);
 const kcRed = Colors.red;
 const kcDarkRed = Color.fromARGB(255, 106, 10, 4);
 var kcDarkBlue = Colors.blue.shade900;
-const kcAppBg = Color(0xFFF7F7F7);
+const kcAppBg = Color(0xFFF5F7FA); // Light grey-blue background
 const kcFont = Colors.black54;
 const kcFontBold = Colors.black;
 const kcFontBolder = Color.fromARGB(255, 20, 20, 20);
@@ -21,16 +28,24 @@ const kcSeatRedeemedColor = Colors.purple;
 const kcWhiteSmoke = Color.fromARGB(255, 227, 225, 225);
 const kcBlackSmoke = Color.fromARGB(255, 56, 55, 55);
 
+// Material 3 Surface Colors
+const kcSurface = Color(0xFFFFFFFF);
+const kcSurfaceVariant = Color(0xFFE8EAF6); // Light indigo tint
+const kcSurfaceContainer = Color(0xFFF3F4F6);
+const kcSurfaceContainerHigh = Color(0xFFE7E8EC);
+const kcOutline = Color(0xFF74777F);
+const kcOutlineVariant = Color(0xFFC4C6CF);
+
 Color get kcLightWhite => kcWhite.withValues(alpha: 0.9);
 
-Color kcPrimary(BuildContext context) => Theme.of(context).primaryColor;
+Color kcPrimaryDynamic(BuildContext context) => Theme.of(context).primaryColor;
 Color kcOnPrimary(BuildContext context) =>
     Theme.of(context).colorScheme.onPrimary;
 Color kcOnErrorContainer(BuildContext context) =>
     Theme.of(context).colorScheme.onErrorContainer;
-Color kcSecondary(BuildContext context) =>
+Color kcSecondaryDynamic(BuildContext context) =>
     Theme.of(context).colorScheme.secondary;
-Color kcTertiary(BuildContext context) =>
+Color kcTertiaryDynamic(BuildContext context) =>
     Theme.of(context).colorScheme.tertiary;
 Color kcBackground(BuildContext context) =>
     Theme.of(context).colorScheme.surface;

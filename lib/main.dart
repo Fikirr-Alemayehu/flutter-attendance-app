@@ -4,10 +4,17 @@ import 'package:glc/attendance/view/home.view.dart';
 import 'package:glc/attendance/viewModel/contact.viewmodel.dart';
 import 'package:glc/attendance/viewModel/home.viewModel.dart';
 import 'package:provider/provider.dart';
+import 'package:glc/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
   runApp(const MyApp());
 }
 

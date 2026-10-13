@@ -3,6 +3,7 @@ import 'package:glc/attendance/models/contact_model.dart';
 import 'package:glc/attendance/models/student_model.dart';
 import 'package:glc/attendance/viewModel/contact.viewmodel.dart';
 import 'package:glc/attendance/viewModel/home.viewModel.dart';
+import 'package:glc/constants/colors.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
 
@@ -42,74 +43,117 @@ class _EditStudentViewState extends State<EditStudentView> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
+      backgroundColor: kcAppBg,
       appBar: AppBar(
         title: const Text("Edit Student"),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: kcPrimary,
         elevation: 0,
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header with Avatar
               Center(
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.blueGrey.withOpacity(0.2),
-                  child: Text(
-                    widget.student.name.isNotEmpty
-                        ? widget.student.name[0].toUpperCase()
-                        : "?",
-                    style: const TextStyle(
-                      fontSize: 40,
-                      color: Colors.blueGrey,
-                      fontWeight: FontWeight.bold,
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [kcPrimaryLight, kcPrimary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: kcPrimary.withValues(alpha:0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 45,
+                        backgroundColor: Colors.transparent,
+                        child: Text(
+                          widget.student.name.isNotEmpty
+                              ? widget.student.name[0].toUpperCase()
+                              : "?",
+                          style: const TextStyle(
+                            fontSize: 48,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Text(
+                      widget.student.name ?? 'Unknown Student',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: kcFontBold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "ID: ${widget.student.id.substring(0, 8)}...",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: kcFont,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
 
               // Name
-              const Text(
-                "Full Name",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              _buildLabel("Full Name", Icons.person),
               const SizedBox(height: 8),
               TextField(
                 controller: nameController,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: kcSurface,
+                  prefixIcon: const Icon(Icons.person_outline, color: kcOutline),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: kcOutlineVariant, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: kcPrimary, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Phone
-              const Text(
-                "Phone Number",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              _buildLabel("Phone Number", Icons.phone),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                  color: kcSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: kcOutlineVariant, width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: InternationalPhoneNumberInput(
                     onInputChanged: (PhoneNumber num) => number = num,
                     selectorConfig: const SelectorConfig(
@@ -120,7 +164,7 @@ class _EditStudentViewState extends State<EditStudentView> {
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 14,
+                        vertical: 16,
                       ),
                     ),
                     formatInput: true,
@@ -128,56 +172,77 @@ class _EditStudentViewState extends State<EditStudentView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Address
-              const Text(
-                "Address",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              _buildLabel("Address", Icons.location_on),
               const SizedBox(height: 8),
               TextField(
                 controller: addressController,
+                maxLines: 2,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: kcSurface,
+                  prefixIcon: const Icon(Icons.location_on_outlined, color: kcOutline),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: kcOutlineVariant, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: kcPrimary, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
 
               // Follower
-              const Text(
-                "Assigned Follower",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              _buildLabel("Assigned Follower", Icons.supervisor_account),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                  color: kcSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: kcOutlineVariant, width: 1),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     isExpanded: true,
                     value: selectedContactId,
+                    hint: Row(
+                      children: [
+                        Icon(Icons.people_outline, color: kcOutline, size: 20),
+                        const SizedBox(width: 12),
+                        const Text("Select Follower"),
+                      ],
+                    ),
                     items: contactOptions.map((contact) {
                       return DropdownMenuItem<String>(
                         value: contact.id.isEmpty ? null : contact.id,
-                        child: Text(
-                          contact.name.isEmpty ? 'Not Assigned' : contact.name,
+                        child: Row(
+                          children: [
+                            Icon(
+                              contact.id.isEmpty ? Icons.person_outline : Icons.person,
+                              color: kcOutline,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                contact.name.isEmpty ? 'Not Assigned' : contact.name,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }).toList(),
@@ -185,7 +250,7 @@ class _EditStudentViewState extends State<EditStudentView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 32),
 
               // Buttons
               Row(
@@ -193,36 +258,40 @@ class _EditStudentViewState extends State<EditStudentView> {
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.red),
+                        side: BorderSide(color: kcOutlineVariant),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        foregroundColor: kcFont,
                       ),
                       onPressed: () => Navigator.pop(context),
                       child: const Text(
                         "Cancel",
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueGrey,
+                        backgroundColor: kcPrimary,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shadowColor: kcPrimary.withValues(alpha:0.4),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      icon: const Icon(Icons.update, color: Colors.white),
+                      icon: const Icon(Icons.update_rounded, size: 22),
                       label: const Text(
-                        "UPDATE STUDENT",
+                        "Update Student",
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
                         ),
                       ),
                       onPressed: () {
@@ -239,6 +308,23 @@ class _EditStudentViewState extends State<EditStudentView> {
                             address,
                             selectedContactId,
                           );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.check_circle, color: Colors.white),
+                                  const SizedBox(width: 12),
+                                  const Text("Student updated successfully!"),
+                                ],
+                              ),
+                              backgroundColor: kcGreen,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
                           Navigator.pop(context);
                         }
                       },
@@ -250,6 +336,23 @@ class _EditStudentViewState extends State<EditStudentView> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String label, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: kcPrimary),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: kcFontBold,
+          ),
+        ),
+      ],
     );
   }
 }
